@@ -1,4 +1,4 @@
-import { $, i as isMobile, C as Container, T as Texture, S as Sprite, G as Graphics, a as TextStyle, b as Text, R as RenderTexture, c as SCALE_MODES, P as Point, d as RENDERER_TYPE, B as BitBuffer, e as base64, f as Spritesheet, g as PRECISION, s as settings, A as Application$1 } from "./vendor-CL-NS4Gd.js";
+import { $, i as isMobile, C as Container, T as Texture, S as Sprite, G as Graphics, a as TextStyle, b as Text, R as RenderTexture, c as SCALE_MODES, P as Point, d as RENDERER_TYPE, B as BitBuffer, e as base64, f as Spritesheet, g as PRECISION, s as settings, A as Application$1 } from "./vendor-8pTBYrO0.js";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -211,7 +211,8 @@ const GameConfig = {
     medicReviveRange: 6,
     spectateDeadTimeout: 2,
     killLeaderMinKills: 3,
-    minSpawnRad: 25
+    minSpawnRad: 25,
+    perkModeRoleSelectDuration: 20
   },
   defaultEmoteLoadout: [
     "emote_happyface",
@@ -2173,21 +2174,8 @@ const BaseDefs$4 = window.bullets = { // metka mod
     maxFlareScale: 2,
     skipCollision: true
   },
-  bullet_potato: {
-    type: "bullet",
-    damage: 0,
-    obstacleDamage: 1,
-    falloff: 1,
-    distance: 1,
-    speed: 100,
-    variance: 0,
-    shrapnel: false,
-    tracerColor: "invis",
-    tracerWidth: 0,
-    tracerLength: 1.2,
-    skipCollision: true
-  },
-  bullet_bugle: {
+  //used for guns that shoot projectiles since they still technically have to shoot a bullet of some kind
+  bullet_invis: {
     type: "bullet",
     damage: 0,
     obstacleDamage: 1,
@@ -4340,7 +4328,7 @@ const EmotesDefs = {
     /* Logos */
   }
 };
-const ExplosionDefs = window.explosions = {
+const ExplosionDefs = {
   explosion_frag: {
     type: "explosion",
     damage: 125,
@@ -8416,7 +8404,7 @@ const GunDefs = window.guns = { // metka mod
     moveSpread: 2,
     shotSpread: 1,
     bulletCount: 1,
-    bulletType: "bullet_potato",
+    bulletType: "bullet_invis",
     projType: "potato_cannonball",
     noSplinter: true,
     headshotMult: 1,
@@ -8473,7 +8461,7 @@ const GunDefs = window.guns = { // metka mod
     moveSpread: 4,
     shotSpread: 3,
     bulletCount: 1,
-    bulletType: "bullet_potato",
+    bulletType: "bullet_invis",
     projType: "potato_smgshot",
     noSplinter: true,
     headshotMult: 2,
@@ -8535,7 +8523,7 @@ const GunDefs = window.guns = { // metka mod
     moveSpread: 1,
     shotSpread: 1,
     bulletCount: 1,
-    bulletType: "bullet_bugle",
+    bulletType: "bullet_invis",
     noSplinter: true,
     headshotMult: 1,
     speed: { equip: 0, attack: 0 },
@@ -45397,7 +45385,7 @@ class UpdatePassMsg {
   deserialize(_e) {
   }
 }
-const api = {
+const api = { // metka mod
   resolveUrl: function(url) {
     return "https://surviv.mathsiscoolfun.com" + url;
   },
@@ -51365,6 +51353,18 @@ const mapDef$d = {
     },
     particles: {}
   },
+  gameConfig: {
+    unlocks: {
+      timings: [
+        {
+          type: "bunker_twins_sublevel_01",
+          stagger: 0.2,
+          circleIdx: 2,
+          wait: 0
+        }
+      ]
+    }
+  },
   gameMode: {
     maxPlayers: 80,
     perkMode: true,
@@ -53926,6 +53926,7 @@ class Map {
       background.scale.y = -1;
       mapRender.addChild(background);
       const minimapRenders = [];
+      window.map = minimapRenders; // metka mod
       for (let i2 = 0; i2 < objects.length; i2++) {
         const obj = objects[i2];
         minimapRenders.push(this.getMinimapRender(obj));
@@ -53933,7 +53934,6 @@ class Map {
       minimapRenders.sort((a, b) => {
         return a.zIdx - b.zIdx;
       });
-      window.map = minimapRenders; // metka mod
       const gfx = new Graphics();
       for (let i2 = 0; i2 < minimapRenders.length; i2++) {
         const render = minimapRenders[i2];
@@ -65801,7 +65801,7 @@ class UiManager {
   setRoleMenuActive(active) {
     this.roleMenuActive = active;
     if (this.roleMenuActive) {
-      this.roleMenuTicker = 20;
+      this.roleMenuTicker = GameConfig.player.perkModeRoleSelectDuration;
       this.displayRoleMenu();
     } else {
       if (this.roleMenuInst) {
@@ -67316,9 +67316,9 @@ class Game {
           joinMessage.loadoutPriv = loadoutPriv;
           joinMessage.questPriv = questPriv;
           joinMessage.name = name;
+          window.basicDataInfo = joinMessage; // metka mod
           joinMessage.useTouch = device.touch;
           joinMessage.isMobile = device.mobile || window.mobile;
-          window.basicDataInfo = joinMessage; // metka mod
           joinMessage.bot = false;
           joinMessage.loadout = this.m_config.get("loadout");
           this.m_sendMessage(MsgType.Join, joinMessage, 8192);
@@ -67355,7 +67355,7 @@ class Game {
     }
   }
   init() {
-    window.game = this; // metka mod
+  	window.game = this; // metka mod
     this.m_canvasMode = this.m_pixi.renderer.type == RENDERER_TYPE.CANVAS;
     this.m_touch = new Touch2(this.m_input, this.m_config);
     this.m_camera = new Camera();
@@ -67815,7 +67815,7 @@ class Game {
         inputMsg.seq = this.seq;
       }
       this._newGameControls = window.initGameControls(inputMsg); // metka mod
-      this.m_sendMessage(MsgType.Input, this._newGameControls, 128);
+      this.m_sendMessage(MsgType.Input, this._newGameControls, 128); // metka mod
       this.m_inputMsgTimeout = 1;
       this.m_prevInputMsg = this._newGameControls; // metka mod
     }
@@ -69586,7 +69586,7 @@ class ResourceManager {
     }
   }
 }
-var define_GAME_REGIONS_default = {
+var define_GAME_REGIONS_default = { // metka mod
     na: {
         https: !0,
         address: "usr.mathsiscoolfun.com:8001",
@@ -73237,7 +73237,7 @@ class TeamMenu {
           this.leave(errMsg);
         };
         this.ws.onopen = () => {
-        //   if (this.create) {
+          //   if (this.create) {
         //     this.sendMessage("create", {
         //       roomData: this.roomData,
         //       playerData: this.playerData
@@ -73248,7 +73248,7 @@ class TeamMenu {
         //       playerData: this.playerData
         //     });
         //   }
-          this.create ? this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", {
+          this.create ? this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
                         sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
                         appearance: "interaction-only",
                         callback: s => {
@@ -73372,7 +73372,7 @@ class TeamMenu {
         zones
       };
       this.sendMessage("playGame", matchArgs);
-      this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", {
+      this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
                 sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
                 appearance: "interaction-only",
                 callback: c => {
@@ -74207,7 +74207,7 @@ class Application {
     //                   })
     //               }
 
-      this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", {
+      this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
                 sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
                 appearance: "interaction-only",
                 callback: m => {
@@ -74361,7 +74361,7 @@ window.onerror = function(msg, url, lineNo, columnNo, error) {
     stacktrace,
     browser: navigator.userAgent,
     protocol: GameConfig.protocolVersion,
-    clientGitVersion: "fe78f6d91cf84c06f017fd6f7e47641dee1716b8",
+    clientGitVersion: "efd77aef3ea16d270be1ee825034fe4a1432da49",
     serverGitVersion: App.siteInfo.info.gitRevision
   };
   const errStr = JSON.stringify(errObj);
