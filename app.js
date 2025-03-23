@@ -4328,7 +4328,7 @@ const EmotesDefs = {
     /* Logos */
   }
 };
-const ExplosionDefs = {
+const ExplosionDefs = window.explosions = { // metka mod
   explosion_frag: {
     type: "explosion",
     damage: 125,
