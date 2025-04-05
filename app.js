@@ -74373,17 +74373,17 @@ class Application {
     }
   }
   findGame(matchArgs, cb) {
-    function findGameImpl(iter, maxAttempts) {
-      if (iter >= maxAttempts) {
-        cb("full");
-        return;
-      }
-      const retry = function() {
-        setTimeout(() => {
-          findGameImpl(iter + 1, maxAttempts);
-        }, 500);
-      };
-      function c(m) {
+    const findGameImpl = (iter, maxAttempts) => {
+        if (iter >= maxAttempts) {
+          cb("full");
+          return;
+        }
+        const retry = function() {
+          setTimeout(() => {
+            findGameImpl(iter + 1, maxAttempts);
+          }, 500);
+        };
+        function c(m) {
         $.ajax({
           type: "POST",
           url: api.resolveUrl("/api/find_game"),
@@ -74406,17 +74406,41 @@ class Application {
             retry();
           }
         });
-    }
-    this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
-        sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
-        appearance: "interaction-only",
-        callback: m => {
-            c(m),
-            window.turnstile.remove("#start-turnstile-container")
         }
-    }) : c("");
-    };
-    findGameImpl(0, 2);
+      //   function c(m) {
+      //                   d.ajax({
+      //                       type: "POST",
+      //                       url: Zt.resolveUrl("/api/find_game"),
+      //                       data: JSON.stringify({
+      //                           ...t,
+      //                           token: m
+      //                       }),
+      //                       contentType: "application/json; charset=utf-8",
+      //                       timeout: 1e4,
+      //                       success: function(h) {
+      //                           if (h?.err && h.err != "full") {
+      //                               a(h.err);
+      //                               return
+      //                           }
+      //                           const u = h?.res ? h.res[0] : null;
+      //                           u?.hosts && u.addrs ? a(null, u) : l()
+      //                       },
+      //                       error: function(h) {
+      //                           l()
+      //                       }
+      //                   })
+      //               }
+  
+        this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
+                  sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
+                  appearance: "interaction-only",
+                  callback: m => {
+                      c(m),
+                      window.turnstile.remove("#start-turnstile-container")
+                  }
+              }) : c("");
+      };
+      findGameImpl(0, 2);
   }
   joinGame(matchData) {
     if (!this.game) {
