@@ -3,7 +3,7 @@ function getDefaultExportFromCjs(x2) {
   return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
 }
 function getAugmentedNamespace(n2) {
-  if (n2.__esModule) return n2;
+  if (Object.prototype.hasOwnProperty.call(n2, "__esModule")) return n2;
   var f2 = n2.default;
   if (typeof f2 == "function") {
     var a2 = function a3() {
@@ -17651,7 +17651,7 @@ class StartupSystem {
    */
   run(options) {
     const { renderer } = this;
-    renderer.runners.init.emit(renderer.options), options.hello && console.log(`PixiJS 7.4.2 - ${renderer.rendererLogId} - https://pixijs.com`), renderer.resize(renderer.screen.width, renderer.screen.height);
+    renderer.runners.init.emit(renderer.options), options.hello && console.log(`PixiJS 7.4.3 - ${renderer.rendererLogId} - https://pixijs.com`), renderer.resize(renderer.screen.width, renderer.screen.height);
   }
   destroy() {
   }
@@ -27469,7 +27469,8 @@ class CacheClass {
     if (keys.forEach((key2) => {
       this._cacheMap.set(key2, cachedAssets);
     }), cacheKeys.forEach((key2) => {
-      this._cache.has(key2) && this._cache.get(key2) !== value && console.warn("[Cache] already has key:", key2), this._cache.set(key2, cacheableAssets[key2]);
+      const val = cacheableAssets ? cacheableAssets[key2] : value;
+      this._cache.has(key2) && this._cache.get(key2) !== val && console.warn("[Cache] already has key:", key2), this._cache.set(key2, cacheableAssets[key2]);
     }), value instanceof Texture) {
       const texture = value;
       keys.forEach((key2) => {
@@ -33951,7 +33952,7 @@ class CanvasSpriteRenderer {
       return;
     const sourceWidth = texture._frame.width, sourceHeight = texture._frame.height;
     let destWidth = texture._frame.width, destHeight = texture._frame.height;
-    texture.trim && (destWidth = texture.trim.width, destHeight = texture.trim.height);
+    texture.trim && (groupD8.isVertical(texture.rotate) ? (destWidth = texture.trim.height, destHeight = texture.trim.width) : (destWidth = texture.trim.width, destHeight = texture.trim.height));
     let wt = sprite.transform.worldTransform, dx = 0, dy = 0;
     const source = texture.baseTexture.getDrawableSource();
     if (texture.orig.width <= 0 || texture.orig.height <= 0 || !texture.valid || !source)
