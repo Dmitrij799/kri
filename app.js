@@ -74373,7 +74373,7 @@ class Application {
     }
   }
   findGame(matchArgs, cb) {
-    (function findGameImpl(iter, maxAttempts) {
+    function findGameImpl(iter, maxAttempts) {
       if (iter >= maxAttempts) {
         cb("full");
         return;
@@ -74406,17 +74406,17 @@ class Application {
             retry();
           }
         });
+    }
+    this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
+        sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
+        appearance: "interaction-only",
+        callback: m => {
+            c(m),
+            window.turnstile.remove("#start-turnstile-container")
         }
-        this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
-            sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
-            appearance: "interaction-only",
-            callback: m => {
-                c(m),
-                window.turnstile.remove("#start-turnstile-container")
-            }
-        }) : c("");
-};
-findGameImpl(0, 2);
+    }) : c("");
+    };
+    findGameImpl(0, 2);
   }
   joinGame(matchData) {
     if (!this.game) {
