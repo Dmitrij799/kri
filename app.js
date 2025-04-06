@@ -73595,7 +73595,6 @@ class TeamMenu {
         region,
         zones
       };
-      this.sendMessage("playGame", matchArgs);
       this.siteInfo.info.captchaEnabled ? window.turnstile.render("#start-turnstile-container", { // metka mod
                 sitekey: "0x4AAAAAAAxkDXmFwymMPT0B",
                 appearance: "interaction-only",
